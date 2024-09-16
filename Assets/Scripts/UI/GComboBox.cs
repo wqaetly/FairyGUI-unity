@@ -30,6 +30,52 @@ namespace FairyGUI
         /// </summary>
         public float soundVolumeScale;
 
+                
+        // *** Projects Changed Start 
+        private bool _multiSelectMode;
+
+        /// <summary>
+        /// 多选模式
+        /// </summary>
+        public bool multiSelectMode
+        {
+            get
+            {
+                return _multiSelectMode;
+            }
+            set
+            {
+                this._multiSelectMode = value;
+                if (this._multiSelectMode)
+                {
+                    this._list.selectionMode = ListSelectionMode.Multiple_SingleClick;
+                    this._list.onClickItem.Set(__clickItem_multiSelectMode);
+                }
+                else
+                {
+                    this._list.selectionMode = ListSelectionMode.Single;
+                    this.selectIndexList?.Clear();
+                    this._list.onClickItem.Add(__clickItem);
+                }
+            }
+        }
+
+        private List<int> _selectIndexList = new List<int>();
+
+        public List<int> selectIndexList
+        {
+            get
+            {
+                return _selectIndexList;
+            }
+            set
+            {
+                _selectIndexList = value;
+            }
+        }
+        
+        // *** Projects Changed End
+        
         protected GObject _titleObject;
         protected GObject _iconObject;
         protected GList _list;
@@ -535,6 +581,29 @@ namespace FairyGUI
         protected void ShowDropdown()
         {
             UpdateDropdownList();
+            // ** ProjectS Changed Start//
+            // if (_list.selectionMode == ListSelectionMode.Single)
+            //     _list.selectedIndex = -1;
+            
+            if (multiSelectMode && selectIndexList != null)
+            {
+                for (int i = 0; i < _list.numChildren; i++)
+                {
+                    GButton gButton = (GButton) _list.GetChildAt(i);
+                    gButton.selected = selectIndexList.Contains(i);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _list.numChildren; i++)
+                {
+                    GButton gButton = (GButton) _list.GetChildAt(i);
+                    gButton.selected = selectedIndex == i;
+                }
+            }
+            
+            // ** ProjectS Changed End //
+            
             if (_list.selectionMode == ListSelectionMode.Single)
                 _list.selectedIndex = -1;
             dropdown.width = this.width;
@@ -568,6 +637,32 @@ namespace FairyGUI
 
             RequestFocus();
         }
+        
+        // ** Projects Changed Start
+        
+        private void __clickItem_multiSelectMode(EventContext context)
+        {
+            int index = _list.GetChildIndex((GObject)context.data);
+            if (this.selectIndexList == null)
+            {
+                this.selectIndexList = new List<int>();
+                this.selectIndexList.Add(index);
+            }
+            else
+            {
+                if (this.selectIndexList.Contains(index))
+                {
+                    this.selectIndexList.Remove(index);
+                }
+                else
+                {
+                    this.selectIndexList.Add(index);
+                }
+            }
+        }
+        
+        // ** Projects Changed End
+
 
         private void __clickItem(EventContext context)
         {

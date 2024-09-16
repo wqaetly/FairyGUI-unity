@@ -60,7 +60,7 @@ namespace FairyGUI
             new Vector2(0, 1), new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1) };
 
         internal bool _alphaInVertexColor;
-        internal bool _isArbitraryQuad;
+        public bool _isArbitraryQuad;
 
         static Stack<VertexBuffer> _pool = new Stack<VertexBuffer>();
 
